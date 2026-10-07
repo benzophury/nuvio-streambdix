@@ -8,23 +8,46 @@
       "id": "dhakaflix",
       "name": "DhakaFlix",
       "description": "BDIX LAN Source: DhakaFlix",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": "Corpse",
-      "supportedTypes": [
-        "movie",
-        "tv"
-      ],
+      "supportedTypes": ["movie", "tv"],
       "filename": "providers/dhakaflix.js",
       "enabled": true,
       "logo": "",
-      "contentLanguage": [
-        "en",
-        "bn"
-      ],
-      "formats": [
-        "mp4",
-        "mkv"
-      ],
+      "contentLanguage": ["en", "bn"],
+      "formats": ["mp4", "mkv"],
+      "limited": true,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
+    },
+    {
+      "id": "circleftp",
+      "name": "CircleFTP",
+      "description": "BDIX LAN Source: CircleFTP",
+      "version": "1.0.0",
+      "author": "Corpse",
+      "supportedTypes": ["movie", "tv"],
+      "filename": "providers/circleftp.js",
+      "enabled": true,
+      "logo": "",
+      "contentLanguage": ["en", "bn"],
+      "formats": ["mp4", "mkv"],
+      "limited": true,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
+    },
+    {
+      "id": "dflix",
+      "name": "DFLIX",
+      "description": "BDIX LAN Source: DFLIX",
+      "version": "1.0.0",
+      "author": "Corpse",
+      "supportedTypes": ["movie", "tv"],
+      "filename": "providers/dflix.js",
+      "enabled": true,
+      "logo": "",
+      "contentLanguage": ["en", "bn"],
+      "formats": ["mp4", "mkv"],
       "limited": true,
       "disabledPlatforms": [],
       "supportsExternalPlayer": true
