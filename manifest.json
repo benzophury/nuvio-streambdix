@@ -1,4 +1,5 @@
 {
+  "id": "streambdix",
   "name": "StreamBDIX Repository",
   "description": "On-device BDIX scrapers for Nuvio",
   "version": "1.0.0",
