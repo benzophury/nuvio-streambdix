@@ -1,34 +1,42 @@
 {
-  "id": "streambdix",
   "name": "StreamBDIX Repository",
   "description": "On-device BDIX scrapers for Nuvio",
   "version": "1.0.0",
   "manifestVersion": 1,
-  "providers": [
+  "plugins": [
     {
-      "id": "dhakaflix",
-      "name": "DhakaFlix",
-      "description": "BDIX LAN Source: DhakaFlix",
+      "id": "streambdix-plugin",
+      "name": "StreamBDIX Plugin",
+      "description": "BDIX LAN Sources",
       "version": "1.0.0",
       "author": "Corpse",
-      "supportedTypes": [
-        "movie",
-        "tv"
-      ],
-      "filename": "providers/dhakaflix.js",
-      "enabled": true,
-      "logo": "",
-      "contentLanguage": [
-        "en",
-        "bn"
-      ],
-      "formats": [
-        "mp4",
-        "mkv"
-      ],
-      "limited": true,
-      "disabledPlatforms": [],
-      "supportsExternalPlayer": true
+      "providers": [
+        {
+          "id": "dhakaflix",
+          "name": "DhakaFlix",
+          "description": "BDIX LAN Source: DhakaFlix",
+          "version": "1.0.0",
+          "author": "Corpse",
+          "supportedTypes": [
+            "movie",
+            "tv"
+          ],
+          "filename": "providers/dhakaflix.js",
+          "enabled": true,
+          "logo": "",
+          "contentLanguage": [
+            "en",
+            "bn"
+          ],
+          "formats": [
+            "mp4",
+            "mkv"
+          ],
+          "limited": true,
+          "disabledPlatforms": [],
+          "supportsExternalPlayer": true
+        }
+      ]
     }
   ]
 }
