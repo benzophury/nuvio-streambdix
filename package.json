@@ -1,0 +1,11 @@
+{
+  "name": "streambdix-nuvio-plugin",
+  "version": "1.0.0",
+  "description": "StreamBDIX on-device plugin for Nuvio",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  }
+}

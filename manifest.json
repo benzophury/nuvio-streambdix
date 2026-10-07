@@ -1,0 +1,27 @@
+[
+  {
+    "id": "dhakaflix",
+    "name": "DhakaFlix",
+    "description": "BDIX LAN Source: DhakaFlix",
+    "version": "1.0.0",
+    "author": "Corpse",
+    "supportedTypes": [
+      "movie",
+      "tv"
+    ],
+    "filename": "providers/dhakaflix.js",
+    "enabled": true,
+    "logo": "",
+    "contentLanguage": [
+      "en",
+      "bn"
+    ],
+    "formats": [
+      "mp4",
+      "mkv"
+    ],
+    "limited": true,
+    "disabledPlatforms": [],
+    "supportsExternalPlayer": true
+  }
+]
