@@ -105,10 +105,10 @@ var require_utils = __commonJS({
           const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
           if (!titleMatch)
             return null;
-          const fullTitle = titleMatch[1].replace(/&#8212;.*| - The Movie Database.*/i, "").trim();
+          const fullTitle = titleMatch[1].replace(/&#8212;.*|—.*|- The Movie Database.*/i, "").trim();
           let title = fullTitle;
           let year = null;
-          const yearMatch = fullTitle.match(/(.+?)\s*\((\d{4})\)$/);
+          const yearMatch = fullTitle.match(/(.+?)\s*\((?:TV Series )?(\d{4})(?:-\d{4})?\)$/i) || fullTitle.match(/(.+?)\s*\((\d{4})\)$/);
           if (yearMatch) {
             title = yearMatch[1].trim();
             year = parseInt(yearMatch[2]);
@@ -132,10 +132,17 @@ var require_utils = __commonJS({
 // src/dhakaflix/index.js
 var { extractQuality, titlesMatch, resolveTmdbMeta } = require_utils();
 var SOURCE_NAME = "DHAKAFLIX";
-var SERVERS = {
-  movie: { url: "http://172.16.50.14", name: "DHAKA-FLIX-14" },
-  tv: { url: "http://172.16.50.12", name: "DHAKA-FLIX-12" }
-};
+var ALL_SERVERS = [
+  { url: "http://172.16.50.4", name: "DHAKA-FLIX-4" },
+  { url: "http://172.16.50.5", name: "DHAKA-FLIX-5" },
+  { url: "http://172.16.50.6", name: "DHAKA-FLIX-6" },
+  { url: "http://172.16.50.7", name: "DHAKA-FLIX-7" },
+  { url: "http://172.16.50.8", name: "DHAKA-FLIX-8" },
+  { url: "http://172.16.50.12", name: "DHAKA-FLIX-12" },
+  { url: "http://172.16.50.13", name: "DHAKA-FLIX-13" },
+  { url: "http://172.16.50.14", name: "DHAKA-FLIX-14" },
+  { url: "http://172.16.50.15", name: "DHAKA-FLIX-15" }
+];
 function getNameFromPath(href) {
   const decoded = decodeURIComponent(href);
   const parts = decoded.split("/").filter((p) => p);
@@ -167,11 +174,15 @@ function searchServer(query, server) {
         action: "get",
         search: { href: `/${server.name}/`, pattern: query, ignorecase: true }
       });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3e3);
       const response = yield fetch(searchUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body
+        body,
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
       if (!response.ok)
         return null;
       let data;
@@ -179,7 +190,6 @@ function searchServer(query, server) {
         const text = yield response.text();
         data = JSON.parse(text);
       } catch (err) {
-        console.error("Failed to parse JSON from DhakaFlix:", err);
         return null;
       }
       if (!(data == null ? void 0 : data.search))
@@ -261,21 +271,30 @@ function getStreams(tmdbId, mediaType, season, episode) {
     const meta = yield resolveTmdbMeta(tmdbId, mediaType);
     if (!meta || !meta.name)
       return [];
-    const server = mediaType === "movie" ? SERVERS.movie : SERVERS.tv;
     const searchTerms = getSearchTerms(meta.name);
+    let allFoundStreams = [];
     for (const term of searchTerms) {
-      const results = yield searchServer(term, server);
-      if (results === null)
-        return [];
-      if (results.length > 0) {
-        if (mediaType === "movie") {
-          return findMovieStreams(results, meta.name, meta.year);
-        } else {
-          return findSeriesStreams(results, meta.name, parseInt(season), parseInt(episode));
+      const serverPromises = ALL_SERVERS.map((server) => searchServer(term, server));
+      const serverResults = yield Promise.all(serverPromises);
+      let foundAnyInTerm = false;
+      for (const results of serverResults) {
+        if (results && results.length > 0) {
+          let streams = [];
+          if (mediaType === "movie") {
+            streams = findMovieStreams(results, meta.name, meta.year);
+          } else {
+            streams = findSeriesStreams(results, meta.name, parseInt(season), parseInt(episode));
+          }
+          if (streams.length > 0) {
+            allFoundStreams.push(...streams);
+            foundAnyInTerm = true;
+          }
         }
       }
+      if (foundAnyInTerm)
+        break;
     }
-    return [];
+    return allFoundStreams;
   });
 }
 module.exports = { getStreams };

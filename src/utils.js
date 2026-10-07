@@ -71,7 +71,7 @@ async function resolveTmdbMeta(tmdbId, mediaType) {
         }
     }
 
-    // Fallback to web scraping (works on Android OkHttp, might 403 on Node)
+    // Fallback to web scraping
     const url = `https://www.themoviedb.org/${mediaType}/${tmdbId}`;
     try {
         const res = await fetch(url, {
@@ -87,12 +87,15 @@ async function resolveTmdbMeta(tmdbId, mediaType) {
         const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
         if (!titleMatch) return null;
         
-        const fullTitle = titleMatch[1].replace(/&#8212;.*| - The Movie Database.*/i, '').trim();
+        // Clean up " — The Movie Database (TMDB)" and similar HTML entities or hyphens
+        const fullTitle = titleMatch[1].replace(/&#8212;.*|—.*|- The Movie Database.*/i, '').trim();
         
         let title = fullTitle;
         let year = null;
         
-        const yearMatch = fullTitle.match(/(.+?)\s*\((\d{4})\)$/);
+        // Match "(YYYY)" for movies or "(TV Series YYYY-YYYY)" / "(TV Series YYYY)" for shows
+        const yearMatch = fullTitle.match(/(.+?)\s*\((?:TV Series )?(\d{4})(?:-\d{4})?\)$/i) || fullTitle.match(/(.+?)\s*\((\d{4})\)$/);
+        
         if (yearMatch) {
             title = yearMatch[1].trim();
             year = parseInt(yearMatch[2]);

@@ -1,10 +1,18 @@
 const { extractQuality, titlesMatch, resolveTmdbMeta } = require('../utils');
 
 const SOURCE_NAME = 'DHAKAFLIX';
-const SERVERS = {
-    movie: { url: 'http://172.16.50.14', name: 'DHAKA-FLIX-14' },
-    tv: { url: 'http://172.16.50.12', name: 'DHAKA-FLIX-12' }
-};
+// Define a broader range of DhakaFlix servers on the subnet
+const ALL_SERVERS = [
+    { url: 'http://172.16.50.4', name: 'DHAKA-FLIX-4' },
+    { url: 'http://172.16.50.5', name: 'DHAKA-FLIX-5' },
+    { url: 'http://172.16.50.6', name: 'DHAKA-FLIX-6' },
+    { url: 'http://172.16.50.7', name: 'DHAKA-FLIX-7' },
+    { url: 'http://172.16.50.8', name: 'DHAKA-FLIX-8' },
+    { url: 'http://172.16.50.12', name: 'DHAKA-FLIX-12' },
+    { url: 'http://172.16.50.13', name: 'DHAKA-FLIX-13' },
+    { url: 'http://172.16.50.14', name: 'DHAKA-FLIX-14' },
+    { url: 'http://172.16.50.15', name: 'DHAKA-FLIX-15' }
+];
 
 function getNameFromPath(href) {
     const decoded = decodeURIComponent(href);
@@ -38,12 +46,18 @@ async function searchServer(query, server) {
             search: { href: `/${server.name}/`, pattern: query, ignorecase: true }
         });
         
-        // Use native fetch (bridged to OkHttp in Nuvio)
+        // Use a short timeout so offline servers don't block
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
         const response = await fetch(searchUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: body
+            body: body,
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) return null;
         
@@ -52,7 +66,6 @@ async function searchServer(query, server) {
             const text = await response.text();
             data = JSON.parse(text);
         } catch (err) {
-            console.error("Failed to parse JSON from DhakaFlix:", err);
             return null;
         }
         
@@ -124,27 +137,41 @@ function getSearchTerms(title) {
 }
 
 async function getStreams(tmdbId, mediaType, season, episode) {
-    // 1. Resolve TMDB -> { title, year }
     const meta = await resolveTmdbMeta(tmdbId, mediaType);
     if (!meta || !meta.name) return [];
 
-    const server = mediaType === 'movie' ? SERVERS.movie : SERVERS.tv;
     const searchTerms = getSearchTerms(meta.name);
     
-    // 2. Search
+    let allFoundStreams = [];
+    
     for (const term of searchTerms) {
-        const results = await searchServer(term, server);
-        if (results === null) return [];
-        if (results.length > 0) {
-            if (mediaType === 'movie') {
-                return findMovieStreams(results, meta.name, meta.year);
-            } else {
-                return findSeriesStreams(results, meta.name, parseInt(season), parseInt(episode));
+        // Search all servers concurrently for speed
+        const serverPromises = ALL_SERVERS.map(server => searchServer(term, server));
+        const serverResults = await Promise.all(serverPromises);
+        
+        let foundAnyInTerm = false;
+        
+        for (const results of serverResults) {
+            if (results && results.length > 0) {
+                let streams = [];
+                if (mediaType === 'movie') {
+                    streams = findMovieStreams(results, meta.name, meta.year);
+                } else {
+                    streams = findSeriesStreams(results, meta.name, parseInt(season), parseInt(episode));
+                }
+                
+                if (streams.length > 0) {
+                    allFoundStreams.push(...streams);
+                    foundAnyInTerm = true;
+                }
             }
         }
+        
+        // If we found streams for this term, no need to fallback to broader terms
+        if (foundAnyInTerm) break;
     }
     
-    return [];
+    return allFoundStreams;
 }
 
 module.exports = { getStreams };
