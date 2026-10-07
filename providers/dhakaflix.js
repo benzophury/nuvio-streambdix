@@ -74,12 +74,17 @@ var require_utils = __commonJS({
             const url2 = `https://api.themoviedb.org/3/${mediaType}/${tmdbId}?api_key=${TMDB_API_KEY}`;
             const res = yield fetch(url2);
             if (res.ok) {
-              const data = yield res.json();
-              const title = data.title || data.name;
-              const releaseDate = data.release_date || data.first_air_date;
-              const year = releaseDate ? parseInt(releaseDate.split("-")[0]) : null;
-              if (title)
-                return { name: title, year };
+              const text = yield res.text();
+              try {
+                const data = JSON.parse(text);
+                const title = data.title || data.name;
+                const releaseDate = data.release_date || data.first_air_date;
+                const year = releaseDate ? parseInt(releaseDate.split("-")[0]) : null;
+                if (title)
+                  return { name: title, year };
+              } catch (e) {
+                console.error("TMDB API JSON parse error", e);
+              }
             }
           } catch (e) {
             console.error("TMDB API error", e);
@@ -169,7 +174,14 @@ function searchServer(query, server) {
       });
       if (!response.ok)
         return null;
-      const data = yield response.json();
+      let data;
+      try {
+        const text = yield response.text();
+        data = JSON.parse(text);
+      } catch (err) {
+        console.error("Failed to parse JSON from DhakaFlix:", err);
+        return null;
+      }
       if (!(data == null ? void 0 : data.search))
         return [];
       return data.search.filter((item) => {

@@ -47,7 +47,14 @@ async function searchServer(query, server) {
         
         if (!response.ok) return null;
         
-        const data = await response.json();
+        let data;
+        try {
+            const text = await response.text();
+            data = JSON.parse(text);
+        } catch (err) {
+            console.error("Failed to parse JSON from DhakaFlix:", err);
+            return null;
+        }
         
         if (!data?.search) return [];
         return data.search

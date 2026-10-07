@@ -55,11 +55,16 @@ async function resolveTmdbMeta(tmdbId, mediaType) {
             const url = `https://api.themoviedb.org/3/${mediaType}/${tmdbId}?api_key=${TMDB_API_KEY}`;
             const res = await fetch(url);
             if (res.ok) {
-                const data = await res.json();
-                const title = data.title || data.name;
-                const releaseDate = data.release_date || data.first_air_date;
-                const year = releaseDate ? parseInt(releaseDate.split('-')[0]) : null;
-                if (title) return { name: title, year };
+                const text = await res.text();
+                try {
+                    const data = JSON.parse(text);
+                    const title = data.title || data.name;
+                    const releaseDate = data.release_date || data.first_air_date;
+                    const year = releaseDate ? parseInt(releaseDate.split('-')[0]) : null;
+                    if (title) return { name: title, year };
+                } catch(e) {
+                    console.error("TMDB API JSON parse error", e);
+                }
             }
         } catch (e) {
             console.error('TMDB API error', e);
