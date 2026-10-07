@@ -51,6 +51,54 @@
       "limited": true,
       "disabledPlatforms": [],
       "supportsExternalPlayer": true
+    },
+    {
+      "id": "roarzone",
+      "name": "RoarZone",
+      "description": "BDIX LAN Source: RoarZone",
+      "version": "1.0.0",
+      "author": "Corpse",
+      "supportedTypes": ["movie", "tv"],
+      "filename": "providers/roarzone.js",
+      "enabled": true,
+      "logo": "",
+      "contentLanguage": ["en", "bn"],
+      "formats": ["mp4", "mkv"],
+      "limited": true,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
+    },
+    {
+      "id": "ftpbd",
+      "name": "FTPBD",
+      "description": "BDIX LAN Source: FTPBD",
+      "version": "1.0.0",
+      "author": "Corpse",
+      "supportedTypes": ["movie", "tv"],
+      "filename": "providers/ftpbd.js",
+      "enabled": true,
+      "logo": "",
+      "contentLanguage": ["en", "bn"],
+      "formats": ["mp4", "mkv"],
+      "limited": true,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
+    },
+    {
+      "id": "iccftp",
+      "name": "ICC FTP",
+      "description": "BDIX LAN Source: ICC FTP",
+      "version": "1.0.0",
+      "author": "Corpse",
+      "supportedTypes": ["movie", "tv"],
+      "filename": "providers/iccftp.js",
+      "enabled": true,
+      "logo": "",
+      "contentLanguage": ["en", "bn"],
+      "formats": ["mp4", "mkv"],
+      "limited": true,
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true
     }
   ]
 }
