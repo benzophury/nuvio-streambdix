@@ -3,7 +3,7 @@
   "description": "On-device BDIX scrapers for Nuvio",
   "version": "1.0.0",
   "manifestVersion": 1,
-  "plugins": [
+  "scrapers": [
     {
       "id": "streambdix-plugin",
       "name": "StreamBDIX Plugin",
